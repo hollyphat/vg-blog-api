@@ -9,30 +9,29 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class BlogController extends Controller
+class PostController extends Controller
 {
     /**
-     * Display all blogs
+     * Display all posts
      */
     public function index()
     {
-        $blogs = Blog::all();
+        $posts = Post::all();
         return response()->json([
             'code' => 200,
             'status' => 'ok',
-            'blogs' => $blogs,
+            'posts' => $posts,
         ]);
     }
 
 
-
     /**
-     * Store a newly created blog.
+     * Store a newly created post.
      */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|min:5|max:250',
+            'blog_id' => 'required',
             'body' => 'required|min:5|max:1000',
             'image' => 'sometimes|required'
         ]);
@@ -45,16 +44,24 @@ class BlogController extends Controller
             ]);
         }
 
+        //First check if blog exists
+
+        $blog_id = $request->blog_id;
+        $blog = Blog::find($blog_id);
+
+        if(!$blog){
+            return response()->json([
+                'code' => 401,
+                'status' => 'error',
+                'message' => "Blog not found",
+            ]);
+        }
+
         $token = \request()->header('token');
         $user = User::where('token', $token)
             ->first();
 
-        //create new blog
-        $blog = new Blog();
-        $blog->title = $request->title;
-        $blog->image = $request->image;
-        $blog->user_id = $user->id;
-        $blog->save();
+        //create new post
 
         //Create a new post
         $post = new Post();
@@ -67,8 +74,8 @@ class BlogController extends Controller
         return response()->json([
             'code' => 200,
             'status' => 'ok',
-            'message' => "Blog created successfully",
-            'blog' => $blog,
+            'message' => "post created successfully",
+            'post' => $post,
         ]);
 
     }
@@ -78,27 +85,26 @@ class BlogController extends Controller
      */
     public function show(string $id)
     {
-        $blog = Blog::where('id',$id)->with('posts')->first();
+        $post = Post::where('id',$id)->with('likes','comments')->first();
 
-        if(!$blog){
+        if(!$post){
             return response()->json([
                 'code' => 401,
                 'status' => 'error',
-                'message' => "Blog not found",
+                'message' => "Post not found",
             ]);
         }
 
         return response()->json([
             'code' => 200,
             'status' => 'ok',
-            'blog' => $blog
+            'post' => $post,
         ]);
     }
 
 
-
     /**
-     * Update the specified blog
+     * Update the specified blog post
      */
     public function update(Request $request, string $id)
     {
@@ -107,26 +113,26 @@ class BlogController extends Controller
             ->first();
 
         //fetch the blog
-        $blog = Blog::find($id);
+        $post = Post::find($id);
 
-        if(!$blog){
+        if(!$post){
             return response()->json([
                 'code' => 401,
                 'status' => 'error',
-                'message' => "Blog not found",
+                'message' => "Post not found",
             ]);
         }
 
-        if($blog->user_id != $user->id){
+        if($post->user_id != $user->id){
             return response()->json([
                 'code' => 401,
                 'status' => 'error',
-                'message' => "Blog not found",
+                'message' => "Post not found",
             ]);
         }
 
         $validator = Validator::make($request->all(), [
-            'title' => 'required|min:5|max:250',
+            'body' => 'required|min:5|max:1000',
             'image' => 'sometimes|required'
         ]);
 
@@ -141,29 +147,30 @@ class BlogController extends Controller
 
 
 
-        $blog->title = $request->title;
+        $post->body = $request->body;
         if($request->image && $request->image != ""){
-            $blog->image = $request->image;
+            $post->image = $request->image;
         }
-        $blog->save();
+        $post->save();
 
 
         return response()->json([
             'code' => 200,
             'status' => 'ok',
-            'message' => "Blog updated successfully",
-            'blog' => $blog,
+            'message' => "Post updated successfully",
+            'post' => $post,
         ]);
     }
 
+
     /**
-     * Remove the specified blog.
+     * Remove the specified post.
      */
     public function destroy(string $id)
     {
-        $blog = Blog::find($id);
+        $post = Post::find($id);
 
-        if(!$blog){
+        if(!$post){
             return response()->json([
                 'code' => 401,
                 'status' => 'error',
@@ -175,18 +182,18 @@ class BlogController extends Controller
         $user = User::where('token', $token)
             ->first();
 
-        if($blog->user_id == $user->id) {
-            $blog->delete();
+        if($post->user_id == $user->id) {
+            $post->delete();
             return response()->json([
                 'code' => 200,
                 'status' => 'ok',
-                'message' => "Blog deleted successfully",
+                'message' => "Blog post deleted successfully",
             ]);
         }else{
             return response()->json([
                 'code' => 401,
                 'status' => 'error',
-                'message' => "Blog not found",
+                'message' => "Blog post not found",
             ]);
         }
     }
