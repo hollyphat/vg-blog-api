@@ -83,7 +83,7 @@ class PostController extends Controller
     /**
      * Display the specified blog.
      */
-    public function show(string $id)
+    public function show($id)
     {
         $post = Post::where('id',$id)->with('likes','comments')->first();
 
@@ -106,7 +106,7 @@ class PostController extends Controller
     /**
      * Update the specified blog post
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
         $token = \request()->header('token');
         $user = User::where('token', $token)
@@ -166,7 +166,7 @@ class PostController extends Controller
     /**
      * Remove the specified post.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
         $post = Post::find($id);
 

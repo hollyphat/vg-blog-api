@@ -20,7 +20,7 @@ class BlogPostController extends Controller
     /**
      * Display the posts of a blog.
      */
-    public function show(string $id)
+    public function show($id)
     {
         $blog = Blog::find($id);
 

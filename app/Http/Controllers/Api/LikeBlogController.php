@@ -15,7 +15,7 @@ class LikeBlogController extends Controller
 
 
     /**
-     * Store a newly created comment (comments are posts with parent).
+     * Like blog post
      */
     public function store(Request $request)
     {

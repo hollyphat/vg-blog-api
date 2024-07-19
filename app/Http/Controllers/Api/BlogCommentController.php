@@ -14,7 +14,8 @@ class BlogCommentController extends Controller
 
 
     /**
-     * Store a newly created comment (comments are posts with parent).
+     * Create new comment (comments are posts with parent).
+     * @param $post_id, $body, $image
      */
     public function store(Request $request)
     {

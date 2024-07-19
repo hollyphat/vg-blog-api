@@ -76,7 +76,7 @@ class BlogController extends Controller
     /**
      * Display the specified blog.
      */
-    public function show(string $id)
+    public function show($id)
     {
         $blog = Blog::where('id',$id)->with('posts')->first();
 
@@ -100,7 +100,7 @@ class BlogController extends Controller
     /**
      * Update the specified blog
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
         $token = \request()->header('token');
         $user = User::where('token', $token)
@@ -159,7 +159,7 @@ class BlogController extends Controller
     /**
      * Remove the specified blog.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
         $blog = Blog::find($id);
 
